@@ -1,0 +1,15 @@
+{
+  "name": "yt-backend",
+  "version": "1.0.0",
+  "description": "practice backend for video sharing application like youtubw",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "JS",
+    "backend"
+  ],
+  "author": "Chaitanya Anand",
+  "license": "ISC"
+}
