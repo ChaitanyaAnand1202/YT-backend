@@ -23,7 +23,7 @@ const app = express()
   }
 } )();
 */
-
+import { app } from "./app.js";
 import mongoose from "mongoose";
 import connectDB from "./db/index.js";
 // require(dotenv).config({path: './env'})
@@ -33,4 +33,19 @@ dotenv.config({
   path: "./.env",
 });
 
-connectDB();
+
+
+
+// connecting DB
+connectDB()
+.then(() => {
+  app.listen(process.env.PORT || 8000, () => {
+    console.log(`Server is running at port :: ${process.env.PORT || 8000}`);
+  });
+  app.on("error", (error) => {
+    console.log("ERRR occured after connection :: ", error);
+  });
+})
+.catch((err) => {
+  console.log("MONGODB connection failed :::: " , err);
+});
