@@ -9,7 +9,7 @@ const storage = multer.diskStorage({
     cb(null, file.originalname)    
     // can also use uniqueids(like nanoid) to save files with unique name beacuse user may uoload files with same name which can cause the files to be overwritten
     // cb(null, file.originalname + "-" + nanoid())
-    // but since we are going to upload these files to the cloudinary service in small time intervals, so it may be hard to get 2 files with the same name
+    // but since we are going to upload these files to the cloudinary service in small time intervals, so it may be hard to get 2 files with the same name, so it may not be necesary
   }
 })
 
