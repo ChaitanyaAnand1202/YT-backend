@@ -53,10 +53,10 @@ const userSchema = new Schema({
   timestamps: true
 })
 
-userSchema.pre("save", function (next){    // Note: dont use arrow function because it cannot access the current context, but here context is needed for this. use
+userSchema.pre("save", async function (next){    // Note: dont use arrow function because it cannot access the current context, but here context is needed for this. use
   if(!this.isModified("password")) return next();
 
-  this.password = bcrypt.hash(this.password, 10);
+  this.password = await bcrypt.hash(this.password, 10);
   next()
 })
 
