@@ -19,12 +19,12 @@ const registerUser = asyncHandler( async (req, res) => {
   
   // get all info from frontned
   const { username, email, fullName, password } = req.body    
-  console.log(email);
+  // console.log(email);
 
   // validation
   // check if any fields empty
   if( [username, email, fullName, password].some((item) => item?.trim() === "") ){
-    throw new ApiError(400, "All fields are reuired");
+    throw new ApiError(400, "All fields are required");
   }
 
   // check if user already exists
@@ -39,10 +39,19 @@ const registerUser = asyncHandler( async (req, res) => {
 
   // check if images recieved from multer -> avatar is required
   const avatarLocalPath = req.files?.avatar[0]?.path       // req.files is provided by multer
-  const coverImageLocalPath = req.files?.coverImage[0]?.path  // always chain all items condotionally since they mat not exist
+  // const coverImageLocalPath = req.files?.coverImage[0]?.path  // always chain all items condotionally since they mat not exist
+
+  let coverImageLocalPath;
+  if(req.files && Array.isArray(req.files.coverImage) && req.files.coverImage.length > 0){  // to make sure that all parts of multer path exist
+    coverImageLocalPath = req.files.coverImage[0].path;
+  }
+
+  // console.log(avatarLocalPath)
+  // console.log(coverImageLocalPath)
+
 
   if(!avatarLocalPath){
-    throw new ApiError( 400 , "avatar file is required")
+    throw new ApiError( 405 , "avatar file is required")
   }
 
   // upload to cloudinary
@@ -51,7 +60,7 @@ const registerUser = asyncHandler( async (req, res) => {
 
   // check if avatar uploaded successfully
   if(!avatarResponse){
-    throw new  ApiError(400, "Avatar file is required");
+    throw new  ApiError(410, "Avatar file not uploaded to cloudinary");
   }
 
 
