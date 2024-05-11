@@ -173,4 +173,37 @@ const loginUser = asyncHandler( async (req , res) => {
     )
 } )
 
-export {registerUser}
+const logoutUser = asyncHandler( async(req, res) => {
+
+  // get access of the user who is logged in
+  // set its refreshToken to undefined -> delete refreshToken so that it is set in db that user has logged out
+  // clear the cookies -> delete both tokens so user login proof deleted from browser
+
+  // using auth middleware, user field is added to req which contains the details of the same user who logged in (auth has verified that this is the case)
+  const userId = req.user._id
+
+
+  // delete refreshToken from db
+  await User.findByIdAndUpdate(userId, {
+    $set:{
+      refreshToken: undefined
+    }
+  })
+
+  // send back the response after deleting cookies
+  const options = {
+    httpOnly: true,
+    secure: true
+  }
+
+  return res
+    .status(200)
+    .clearCookie("accessToken")  // delete accessToken
+    .clearCookie("refreshToken") // delete refreshToken
+    .json(
+      new ApiResponse(200, {}, "User logged out successfully")
+    )
+
+})
+
+export {registerUser, loginUser, logoutUser}
