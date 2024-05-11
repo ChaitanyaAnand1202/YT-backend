@@ -1,6 +1,7 @@
 import mongoose, {Schema} from "mongoose";
 import bcrypt from "bcrypt";
-import jsonwebtoken from "jsonwebtoken";
+import jwt from "jsonwebtoken";
+import { ApiError } from "../utils/ApiError.js";
 
 
 const userSchema = new Schema({
@@ -65,18 +66,22 @@ userSchema.methods.isPasswordCorrect = async function (password){
 }
 
 userSchema.methods.generateAcessToken = function(){
-  return jwt.sign(
-    { // payload
-      _id: this._id,
-      email: this.email,
-      username: this.username,
-      fullName: this.fullName
-    },
-    process.env.ACCESS_TOKEN_SECRET,
-    {
-      expiresIn: process.env.ACCESS_TOKEN_EXPIRY
-    }
-  )
+  try {
+    return jwt.sign(
+      { // payload
+        _id: this._id,
+        email: this.email,
+        username: this.username,
+        fullName: this.fullName
+      },
+      process.env.ACCESS_TOKEN_SECRET,
+      {
+        expiresIn: process.env.ACCESS_TOKEN_EXPIRY
+      }
+    )
+  } catch (error) {
+    throw new ApiError(402, error.message)
+  }
 }
 userSchema.methods.generateRefreshToken = function(){
   return jwt.sign(
