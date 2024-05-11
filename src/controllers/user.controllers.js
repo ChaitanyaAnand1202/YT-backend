@@ -8,11 +8,18 @@ import { ApiResponse } from "../utils/ApiResponse.js";
 const generateAccessAndRefreshTokens = async(userId) => {
   try {
     const user = await User.findById(userId);  // find the user from database
+    // console.log(user);
+
     const accessToken = user.generateAcessToken();
+    // console.log(accessToken);
+
     const refreshToken = user.generateRefreshToken(); // generate access and refresh token
+    // console.log(refreshToken);
 
     user.refreshToken = refreshToken; // assigning the generated refresh token into db
     await user.save({ validateBeforeSave: false });    // saving the changes made to the current user object
+
+
 
     return { accessToken, refreshToken };
 
@@ -142,7 +149,9 @@ const loginUser = asyncHandler( async (req , res) => {
   }
 
   // generate access and refresh token
-  const {accessToken, refreshToken} = generateAccessAndRefreshTokens(userFromDatabase._id);
+  const {accessToken, refreshToken} = await generateAccessAndRefreshTokens(userFromDatabase._id);
+  // console.log("inside login user",accessToken, refreshToken);
+  
 
   // getting details of user after login except password and refreshToken to be returned
   const loggedInUser = await User.findById(userFromDatabase._id).select("-password -refreshToken");  
