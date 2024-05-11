@@ -1,6 +1,7 @@
 import { Router } from "express";
-import { registerUser } from "../controllers/user.controllers.js";
+import { loginUser, logoutUser, registerUser } from "../controllers/user.controllers.js";
 import { upload } from "../middlewares/multer.middleware.js"
+import { verifyJWT } from "../middlewares/auth.middleware.js";
 
 const userRouter = Router()
 
@@ -19,5 +20,11 @@ userRouter.route('/register').post(
   ),  
   registerUser
 )
+
+userRouter.route('/login').post(loginUser)   // login needs no authentication -> after login tokens are generated
+
+// secured routes -> routes after authorization
+
+userRouter.route('/logout').post(verifyJWT , logoutUser)    // logout will happpen only after token in cookies are verified
 
 export default userRouter
