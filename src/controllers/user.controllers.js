@@ -4,6 +4,7 @@ import { User } from "../models/user.model.js"
 import { uploadOnCloudinary } from "../utils/cloudinary.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 import jwt from "jsonwebtoken"
+import { json } from "express";
 
 
 const generateAccessAndRefreshTokens = async(userId) => {
@@ -264,8 +265,65 @@ const refreshAccessToken = asyncHandler( async(req, res) => {
 
 })
 
-const updateUser = asyncHandler( async(req, res) => {
+const changeCurrentPassword = asyncHandler( async(req, res) => {
+
+
+  // take the old password and new password
+  const {oldPassword, newPassword} = req.body;
+
+  // check if the old password is correct
+  // if user wants to change password, it means user is logged in , so there is req.user availible
+  // get the current user
+  const user = await User.findById(req.user?._id);
+
+  const isPasswordCorrect = await user.isPasswordCorrect(oldPassword)
+
+  if(!isPasswordCorrect){
+    throw new ApiError(400, "Invalid old password");
+  }
+
+  user.password = newPassword;
+  await user.save({validateBeforeSave: false});
+
+  return res.status(200)
+    .json(
+      new ApiResponse(200, {}, "password changed successfully")
+    );
 
 } )
 
-export {registerUser, loginUser, logoutUser, refreshAccessToken, updateUser}
+const getCurrentUser = asyncHandler( async(req, res) => {
+  return res.status(200)
+    .json(
+      200,
+      req.user,
+      "Current user fetched successfully"
+    )
+})
+
+const updateDetails = asyncHandler( async(req, res) => {
+  const {fullName, email} = req.body
+
+  if(!(fullName || email)){
+    throw new ApiError(400, "full name or email required");
+  }
+
+  const user = await User.findByIdAndUpdate(
+    req.user?._id,
+    {
+      $set: {
+        fullName: fullName,
+        email: email
+      }
+    },
+    {new : true}   // including this option will return the newly formed object that is stored in user
+  ).select("-password")   // dont send password back in response
+
+  return res.status(200)
+    .json(
+      200, 
+      user,
+      "account details updated successfully"
+    )
+})
+export {registerUser, loginUser, logoutUser, refreshAccessToken, changeCurrentPassword, getCurrentUser, updateDetails}
